@@ -33,6 +33,10 @@ local do_fuel = false
 local horizontal = false
 local version = "V0.14.3"
 local latest_changes = [[Added a few more blocks as ores. If you wish to add some that are missing, PRs are open!]]
+local turtleDig = turtle.dig
+local turtleDigUp = turtle.digUp
+local turtleDigDown = turtle.digDown
+
 
 local parser = simple_argparse.new_parser("dog", "Dog is a program run on mining turtles which is used to find ores and mine them. Unlike quarry programs, this program digs in a straight line down and uses either plethora's block scanner or advanced peripheral's geoscanner to detect where ores are along its path and mine to them.")
 parser.add_option("depth", "The maximum depth to dig to.", max_depth)
@@ -234,7 +238,7 @@ local ORE_DICT = {
   -- ##  MODDED ORES  ##
   -- Create
   ["create:zinc_ore"] = true,
-  ["create:deepslate_zinc_ore"] = true,
+  ["create_deepslate_zinc_ore"] = true,
 
   -- Mekanism
   ["mekanism:tin_ore"] = true,
@@ -281,6 +285,9 @@ local ORE_DICT = {
   ["deepresonance:resonating_ore_nether"] = true,
   ["deepresonance:resonating_ore_end"] = true,
 }
+
+
+
 if parsed.options.exclude then
   if root_folder:exists(parsed.options.exclude) then
     local exclude = root_folder:unserialize(parsed.options.exclude)
@@ -342,7 +349,73 @@ if parsed.options.only then
     error("Only file does not exist.", 0)
   end
 end
-
+local function suckall()
+  turtle.suck()
+  turtle.suckUp()
+  turtle.suckDown()
+end
+turtle.dig = function()
+  local succ, data = turtle.inspect()
+  if succ then
+    local isore = ORE_DICT[data.name]
+    if isore then
+      turtle.select(1)
+      turtle.equipLeft()
+      turtle.select(2)
+      repeat
+        turtleDig()
+      until not turtle.detect()
+      turtle.select(3)
+      suckall()
+      turtle.select(1)
+      turtle.equipLeft()
+    else
+      turtleDig()
+    end
+  end
+end
+turtle.digUp = function()
+  local succ, data = turtle.inspectUp()
+  if succ then
+    local isore = ORE_DICT[data.name]
+    if isore then
+      turtle.select(1)
+      turtle.equipLeft()
+      turtle.select(2)
+      repeat
+        turtleDigUp()
+        sleep(0.1)
+      until not turtle.detectUp()
+      turtle.select(3)
+      suckall()
+      turtle.select(1)
+      turtle.equipLeft()
+    else
+      turtleDigUp()
+    end
+  end
+end
+turtle.digDown = function()
+  local succ, data = turtle.inspectDown()
+  if succ then
+    local isore = ORE_DICT[data.name]
+    if isore then
+      turtle.select(1)
+      turtle.equipLeft()
+      turtle.select(2)
+      repeat
+        turtleDigDown()
+        sleep(0.1)
+      until not turtle.detectDown()
+      turtle.select(3)
+      suckall()
+      turtle.select(1)
+      turtle.equipLeft()
+    else
+      turtleDigDown()
+    end
+  end
+end
 local state = {
   state = "digdown", ---@type "digdown"|"seeking"|"returning_home"|"returning_from_seek"|"errored"
   state_info = {depth = 0}
@@ -680,7 +753,7 @@ local function dump_inventory()
   end
 
   -- Then, dump the inventory.
-  for i = 1, 16 do
+  for i = 3, 16 do
     if turtle.getItemCount(i) > 0 then
       turtle.select(i)
       if do_fuel and turtle.refuel() then
@@ -696,7 +769,7 @@ end
 --- Check that the turtle's inventory isn't too full.
 ---@return boolean full True if the inventory is full, false otherwise.
 local function check_inventory()
-  return turtle.getItemCount(15) > 0 -- we leave a single slot open in case the turtle comes across a new item while returning home.
+  return turtle.getItemCount(16) > 0 -- we leave a single slot open in case the turtle comes across a new item while returning home.
 end
 
 --- Return the distance to the surface.
@@ -856,7 +929,7 @@ local function draw_data()
 end
 
 local BARK_CONTEXT = logging.create_context("BARKBARK")
---- BARK BARK BARK BARK BARK BARK BARK BARK BARK BARK BARK BARK BARK BARK BARK BARK BARK BARK 
+--- BARK BARK BARK BARK BARK BARK BARK BARK BARK BARK BARK BARK BARK BARK BARK BARK BARK BARK
 local function BARK()
   local bark_screen = {"###   ##  ###  #  #","#  # #  # #  # # # ","###  #### ###  ##  ","#  # #  # #  # # # ","###  #  # #  # #  #"}
   local bark_count_rng = math.random(0, 100)
