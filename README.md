@@ -8,7 +8,7 @@ Dog fetches ore, and like a good boy he brings it back.
 4. Your fortune pickaxe in slot 2
 
 # Usage
-1. Run `wget run https://raw.githubusercontent.com/Fatboychummy-CC/Dog/refresh/installer.lua`
+1. Run `wget run https://raw.githubusercontent.com/SethGamer1223/Kinetic-Dog/refresh/installer.lua`
 2. Confirm the installer's prompts.
 3. Run `dog.lua`
 
