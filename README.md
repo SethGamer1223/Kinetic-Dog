@@ -4,6 +4,8 @@ Dog fetches ore, and like a good boy he brings it back.
 # Requirements
 1. Block Scanner mounted on one of the turtle's sides.
 2. Pickaxe mounted on the other side
+3. Kinetic module in slot 1
+4. Your fortune pickaxe in slot 2
 
 # Usage
 1. Run `wget run https://raw.githubusercontent.com/Fatboychummy-CC/Dog/refresh/installer.lua`
